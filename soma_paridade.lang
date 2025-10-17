@@ -1,0 +1,20 @@
+I numeroBase = 13
+I listaNumeros = [2, 7, 10, 5, 8]
+
+FN somarVerificarParidade(I numeroLista, I numeroBase)
+	I soma = numeroLista + numeroBase
+	
+	IF soma % 2 == 0
+		R T
+	EL
+		R F
+		
+PT 'Número base fixo: $numeroBase\n'
+
+FR index IN listaNumeros
+	I soma = index + numeroBase
+	
+	IF somarVerificarParidade(index, numeroBase)
+		PT 'Soma $index + $numeroBase = $soma (Resultado PAR)'
+	EL
+		PT 'Soma $index + $numeroBase = $soma (Resultado ÍMPAR)'

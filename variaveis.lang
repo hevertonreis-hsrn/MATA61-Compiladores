@@ -1,0 +1,6 @@
+I a = 10
+FL b = 5.5
+S msg = 'Resultado:'
+
+PT msg
+PT a + b

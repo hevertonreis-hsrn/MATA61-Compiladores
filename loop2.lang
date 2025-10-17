@@ -1,0 +1,6 @@
+FR i IN [1, 2, 3]
+	IF i == 2
+		PT 'Dois encontrado!'
+	EL
+		PT 'Outro número'
+PT 'Loop finalizado'
