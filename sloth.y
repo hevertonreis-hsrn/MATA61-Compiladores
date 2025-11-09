@@ -28,7 +28,7 @@ void print_indent() {
 }
 
 /* Tokens vindos do Flex */
-%token T_FN T_IF T_EL T_EF T_FR T_WL T_R
+%token T_FN T_IF T_EL T_EF T_FR T_WL T_R T_IN
 %token T_I T_FL T_S
 %token T_EQ T_NEQ T_GTE T_LTE T_GT T_LT
 %token T_ASSIGN
