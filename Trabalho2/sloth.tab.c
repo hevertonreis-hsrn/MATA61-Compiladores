@@ -73,23 +73,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define YYDEBUG 1
+int yydebug = 1;
+
 /* Protótipos */
 int yylex(void);
 void yyerror(const char *s);
 
-/* Funções/variáveis providas pelo scanner (sloth.l) */
 extern char *symbol_table[];
 extern int symbol_count;
 extern void init_lexer(void);
 extern FILE *yyin;
 
-/* Função auxiliar para imprimir árvore com indentação */
+/* indent */
 int indent_level = 0;
 void print_indent() {
     for (int i = 0; i < indent_level; i++) printf("    ");
 }
 
-#line 93 "sloth.tab.c"
+
+#line 96 "sloth.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -184,6 +187,50 @@ typedef enum yysymbol_kind_t yysymbol_kind_t;
 
 
 
+/* Unqualified %code blocks.  */
+#line 66 "sloth.y"
+
+void print_token_debug(int token) {
+    switch(token) {
+        case T_FN: printf("[TOKEN] T_FN\n"); break;
+        case T_IF: printf("[TOKEN] T_IF\n"); break;
+        case T_EL: printf("[TOKEN] T_EL\n"); break;
+        case T_EF: printf("[TOKEN] T_EF\n"); break;
+        case T_FR: printf("[TOKEN] T_FR\n"); break;
+        case T_WL: printf("[TOKEN] T_WL\n"); break;
+        case T_R:  printf("[TOKEN] T_R\n"); break;
+        case T_IN: printf("[TOKEN] T_IN\n"); break;
+
+        case T_ID:
+            printf("[TOKEN] T_ID (%s)\n", symbol_table[yylval.ival]);
+            break;
+
+        case T_INT_NUM:
+            printf("[TOKEN] T_INT_NUM (%d)\n", yylval.ival);
+            break;
+
+        case T_FLOAT_NUM:
+            printf("[TOKEN] T_FLOAT_NUM (%f)\n", yylval.fval);
+            break;
+
+        case T_STRING:
+            printf("[TOKEN] T_STRING (%s)\n", yylval.str);
+            break;
+
+        case T_NEWLINE: printf("[TOKEN] T_NEWLINE\n"); break;
+        case T_INDENT:  printf("[TOKEN] T_INDENT\n"); break;
+        case T_DEDENT:  printf("[TOKEN] T_DEDENT\n"); break;
+
+        case T_UNKNOWN:
+            printf("[TOKEN] T_UNKNOWN (%s)\n", yylval.str);
+            break;
+
+        default:
+            printf("[TOKEN] outro (%d)\n", token);
+    }
+}
+
+#line 234 "sloth.tab.c"
 
 #ifdef short
 # undef short
@@ -568,11 +615,11 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    67,    67,    79,    80,    85,    86,    87,    88,    89,
-      90,    91,    96,   104,   116,   130,   131,   132,   136,   137,
-     142,   146,   147,   148,   153,   158,   172,   193,   210,   228,
-     247,   248,   252,   256,   264,   282,   283,   284,   285,   286,
-     287,   292
+       0,   115,   115,   124,   125,   129,   130,   131,   132,   133,
+     134,   135,   140,   148,   160,   172,   173,   174,   178,   179,
+     184,   188,   189,   190,   191,   196,   200,   209,   217,   226,
+     234,   235,   239,   243,   251,   258,   258,   258,   258,   258,
+     258,   263
 };
 #endif
 
@@ -1200,19 +1247,17 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: statement_list  */
-#line 68 "sloth.y"
+#line 116 "sloth.y"
         {
-            /* Cabeçalho da árvore */
             printf("program\n");
             indent_level++;
             print_indent(); printf("statement_list\n");
-            /* statement_list já imprimirá seus statements com base no indent_level atual */
         }
-#line 1212 "sloth.tab.c"
+#line 1257 "sloth.tab.c"
     break;
 
   case 12: /* declaration: T_I T_ID T_NEWLINE  */
-#line 97 "sloth.y"
+#line 141 "sloth.y"
         {
             print_indent(); printf("declaration\n");
             indent_level++;
@@ -1220,11 +1265,11 @@ yyreduce:
             print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-1].ival)]);
             indent_level--;
         }
-#line 1224 "sloth.tab.c"
+#line 1269 "sloth.tab.c"
     break;
 
   case 13: /* declaration: T_FL T_ID T_NEWLINE  */
-#line 105 "sloth.y"
+#line 149 "sloth.y"
         {
             print_indent(); printf("declaration\n");
             indent_level++;
@@ -1232,231 +1277,160 @@ yyreduce:
             print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-1].ival)]);
             indent_level--;
         }
-#line 1236 "sloth.tab.c"
+#line 1281 "sloth.tab.c"
     break;
 
   case 14: /* attribution: T_ID T_ASSIGN expression T_NEWLINE  */
-#line 117 "sloth.y"
+#line 161 "sloth.y"
         {
             print_indent(); printf("attribution\n");
             indent_level++;
             print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-3].ival)]);
-            print_indent(); printf("expression\n");
-            indent_level++;
-            print_indent(); printf("value: %f\n", (yyvsp[-1].fval));
-            indent_level -= 2;
+            print_indent(); printf("expression value: %f\n", (yyvsp[-1].fval));
+            indent_level--;
         }
-#line 1250 "sloth.tab.c"
+#line 1293 "sloth.tab.c"
     break;
 
   case 15: /* expression: expression T_PLUS term  */
-#line 130 "sloth.y"
+#line 172 "sloth.y"
                                { (yyval.fval) = (yyvsp[-2].fval) + (yyvsp[0].fval); }
-#line 1256 "sloth.tab.c"
+#line 1299 "sloth.tab.c"
     break;
 
   case 16: /* expression: expression T_MINUS term  */
-#line 131 "sloth.y"
+#line 173 "sloth.y"
                                { (yyval.fval) = (yyvsp[-2].fval) - (yyvsp[0].fval); }
-#line 1262 "sloth.tab.c"
+#line 1305 "sloth.tab.c"
     break;
 
   case 17: /* expression: term  */
-#line 132 "sloth.y"
+#line 174 "sloth.y"
                                { (yyval.fval) = (yyvsp[0].fval); }
-#line 1268 "sloth.tab.c"
+#line 1311 "sloth.tab.c"
     break;
 
   case 18: /* term: term T_MUL factor  */
-#line 136 "sloth.y"
+#line 178 "sloth.y"
                                { (yyval.fval) = (yyvsp[-2].fval) * (yyvsp[0].fval); }
-#line 1274 "sloth.tab.c"
+#line 1317 "sloth.tab.c"
     break;
 
   case 19: /* term: term T_DIV factor  */
-#line 137 "sloth.y"
+#line 179 "sloth.y"
                                {
-                                   if ((yyvsp[0].fval) == 0.0) {
-                                       yyerror("Divisao por zero (avaliacao de expressao)"); (yyval.fval) = 0.0;
-                                   } else (yyval.fval) = (yyvsp[-2].fval) / (yyvsp[0].fval);
-                               }
-#line 1284 "sloth.tab.c"
+         if ((yyvsp[0].fval) == 0.0)
+             yyerror("Divisão por zero");
+         (yyval.fval) = (yyvsp[-2].fval) / (yyvsp[0].fval);
+    }
+#line 1327 "sloth.tab.c"
     break;
 
   case 20: /* term: factor  */
-#line 142 "sloth.y"
+#line 184 "sloth.y"
                                { (yyval.fval) = (yyvsp[0].fval); }
-#line 1290 "sloth.tab.c"
+#line 1333 "sloth.tab.c"
     break;
 
   case 21: /* factor: T_INT_NUM  */
-#line 146 "sloth.y"
+#line 188 "sloth.y"
                                { (yyval.fval) = (double)(yyvsp[0].ival); }
-#line 1296 "sloth.tab.c"
+#line 1339 "sloth.tab.c"
     break;
 
   case 22: /* factor: T_FLOAT_NUM  */
-#line 147 "sloth.y"
+#line 189 "sloth.y"
                                { (yyval.fval) = (yyvsp[0].fval); }
-#line 1302 "sloth.tab.c"
+#line 1345 "sloth.tab.c"
     break;
 
   case 23: /* factor: T_ID  */
-#line 148 "sloth.y"
-                               {
-                                  /* variável: não avaliamos valor (ainda), colocamos 0.0
-                                     mas imprimimos a referência se desejado quando reduzido em contextos */
-                                  (yyval.fval) = 0.0;
-                              }
-#line 1312 "sloth.tab.c"
+#line 190 "sloth.y"
+                               { (yyval.fval) = 0.0; }
+#line 1351 "sloth.tab.c"
     break;
 
   case 24: /* factor: T_LPAREN expression T_RPAREN  */
-#line 153 "sloth.y"
+#line 191 "sloth.y"
                                    { (yyval.fval) = (yyvsp[-1].fval); }
-#line 1318 "sloth.tab.c"
-    break;
-
-  case 25: /* if_statement: T_IF condition T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 159 "sloth.y"
-        {
-            print_indent(); printf("if_statement\n");
-            indent_level++;
-            print_indent(); printf("condition\n");
-            indent_level++;
-            /* imprimimos forma simplificada da condição (a árvore detalhada pode ser expandida) */
-            print_indent(); printf("(relational expression)\n");
-            indent_level -= 2;
-            print_indent(); printf("then_block\n");
-            indent_level++;
-            /* statements inside then_block were printed by statement_list */
-            indent_level--;
-        }
-#line 1336 "sloth.tab.c"
-    break;
-
-  case 26: /* if_statement: T_IF condition T_NEWLINE T_INDENT statement_list T_DEDENT T_EL T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 173 "sloth.y"
-        {
-            print_indent(); printf("if_else_statement\n");
-            indent_level++;
-            print_indent(); printf("condition\n");
-            indent_level++;
-            print_indent(); printf("(relational expression)\n");
-            indent_level -= 2;
-            print_indent(); printf("then_block\n");
-            indent_level++;
-            /* then statements printed by nested statement_list */
-            indent_level--;
-            print_indent(); printf("else_block\n");
-            indent_level++;
-            /* else statements printed by nested statement_list */
-            indent_level--;
-        }
 #line 1357 "sloth.tab.c"
     break;
 
+  case 25: /* if_statement: T_IF condition T_NEWLINE T_INDENT statement_list T_DEDENT  */
+#line 197 "sloth.y"
+        {
+            print_indent(); printf("if_statement\n");
+        }
+#line 1365 "sloth.tab.c"
+    break;
+
+  case 26: /* if_statement: T_IF condition T_NEWLINE T_INDENT statement_list T_DEDENT T_EL T_NEWLINE T_INDENT statement_list T_DEDENT  */
+#line 202 "sloth.y"
+        {
+            print_indent(); printf("if_else_statement\n");
+        }
+#line 1373 "sloth.tab.c"
+    break;
+
   case 27: /* while_statement: T_WL condition T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 194 "sloth.y"
+#line 210 "sloth.y"
         {
             print_indent(); printf("while_statement\n");
-            indent_level++;
-            print_indent(); printf("condition\n");
-            indent_level++;
-            print_indent(); printf("(relational expression)\n");
-            indent_level -= 2;
-            print_indent(); printf("body\n");
-            indent_level++;
-            /* body statements printed by statement_list */
-            indent_level--;
         }
-#line 1374 "sloth.tab.c"
+#line 1381 "sloth.tab.c"
     break;
 
   case 28: /* for_statement: T_FR T_ID T_IN expression T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 211 "sloth.y"
+#line 218 "sloth.y"
         {
-            print_indent(); printf("for_statement\n");
-            indent_level++;
-            print_indent(); printf("iterator: %s\n", symbol_table[(yyvsp[-6].ival)]);
-            print_indent(); printf("range_expression\n");
-            indent_level++;
-            print_indent(); printf("(expression)\n");
-            indent_level -= 1;
-            print_indent(); printf("body\n");
-            indent_level++;
-            /* body printed by statement_list */
-            indent_level--;
+            print_indent();
+            printf("for_statement iterator=%s\n", symbol_table[(yyvsp[-6].ival)]);
         }
-#line 1392 "sloth.tab.c"
+#line 1390 "sloth.tab.c"
     break;
 
   case 29: /* function_def: T_FN T_ID T_LPAREN param_list_opt T_RPAREN T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 229 "sloth.y"
+#line 228 "sloth.y"
         {
-            print_indent(); printf("function_def\n");
-            indent_level++;
-            print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-7].ival)]);
-            print_indent(); printf("parameters\n");
-            indent_level++;
-            print_indent(); printf("(param_list)\n");
-            indent_level--;
-            print_indent(); printf("body\n");
-            indent_level++;
-            /* body printed by statement_list */
-            indent_level--;
-            indent_level--;
+            print_indent(); printf("function_def id=%s\n", symbol_table[(yyvsp[-7].ival)]);
         }
-#line 1411 "sloth.tab.c"
+#line 1398 "sloth.tab.c"
     break;
 
   case 32: /* param_list: T_ID  */
-#line 253 "sloth.y"
+#line 240 "sloth.y"
         {
             print_indent(); printf("param: %s\n", symbol_table[(yyvsp[0].ival)]);
         }
-#line 1419 "sloth.tab.c"
+#line 1406 "sloth.tab.c"
     break;
 
   case 33: /* param_list: param_list T_COMMA T_ID  */
-#line 257 "sloth.y"
+#line 244 "sloth.y"
         {
             print_indent(); printf("param: %s\n", symbol_table[(yyvsp[0].ival)]);
         }
-#line 1427 "sloth.tab.c"
+#line 1414 "sloth.tab.c"
     break;
 
   case 34: /* condition: expression relop expression  */
-#line 265 "sloth.y"
-    {
-        /* imprime estrutura simplificada da condição */
-        print_indent(); printf("condition\n");
-        indent_level++;
-        print_indent(); printf("left_expr (computed?)\n");
-        print_indent(); printf("relop\n");
-        indent_level++;
-        print_indent(); /* print symbol of relop */
-        printf("(relop)\n");
-        indent_level--;
-        print_indent(); printf("right_expr (computed?)\n");
-        indent_level--;
-    }
-#line 1445 "sloth.tab.c"
+#line 252 "sloth.y"
+        {
+            print_indent(); printf("condition\n");
+        }
+#line 1422 "sloth.tab.c"
     break;
 
   case 41: /* return_statement: T_R expression T_NEWLINE  */
-#line 293 "sloth.y"
+#line 264 "sloth.y"
         {
             print_indent(); printf("return_statement\n");
-            indent_level++;
-            print_indent(); printf("expression\n");
-            indent_level--;
         }
-#line 1456 "sloth.tab.c"
+#line 1430 "sloth.tab.c"
     break;
 
 
-#line 1460 "sloth.tab.c"
+#line 1434 "sloth.tab.c"
 
       default: break;
     }
@@ -1649,15 +1623,18 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 301 "sloth.y"
+#line 269 "sloth.y"
 
 
 /* ==============================
-   SEÇÃO DE CÓDIGO DO USUÁRIO
+   CÓDIGO FINAL
    ============================== */
 
 int main(int argc, char **argv) {
+    yydebug = 1;
+
     FILE *infile = NULL;
+
     if (argc > 1) {
         infile = fopen(argv[1], "r");
         if (!infile) {
@@ -1667,16 +1644,14 @@ int main(int argc, char **argv) {
         yyin = infile;
     }
 
-    /* Inicializa o lexer (pilha de indentação, etc.) */
     init_lexer();
 
     printf("=== Iniciando análise sintática da linguagem Sloth ===\n");
+
     int res = yyparse();
 
-    /* libera tabela de símbolos alocada pelo lexer */
-    for (int i = 0; i < symbol_count; i++) {
+    for (int i = 0; i < symbol_count; i++)
         free(symbol_table[i]);
-    }
 
     if (infile) fclose(infile);
     return res;

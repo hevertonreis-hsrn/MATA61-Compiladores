@@ -103,11 +103,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 31 "sloth.y"
+#line 34 "sloth.y"
 
-    int ival;      /* inteiros e índices de símbolo */
-    double fval;   /* floats e valores de expressão */
-    char *str;     /* strings literais */
+    int ival;
+    double fval;
+    char *str;
 
 #line 113 "sloth.tab.h"
 
