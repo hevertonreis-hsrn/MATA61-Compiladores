@@ -1,0 +1,5 @@
+FN verificarParidade(I num)
+	IF num % 2 == 0
+		R 'Número par'
+	EL
+		R 'Número ímpar'

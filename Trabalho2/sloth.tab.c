@@ -77,13 +77,19 @@
 int yylex(void);
 void yyerror(const char *s);
 
+/* Funções/variáveis providas pelo scanner (sloth.l) */
+extern char *symbol_table[];
+extern int symbol_count;
+extern void init_lexer(void);
+extern FILE *yyin;
+
 /* Função auxiliar para imprimir árvore com indentação */
 int indent_level = 0;
 void print_indent() {
     for (int i = 0; i < indent_level; i++) printf("    ");
 }
 
-#line 87 "sloth.tab.c"
+#line 93 "sloth.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -151,24 +157,28 @@ enum yysymbol_kind_t
   YYSYMBOL_T_NEWLINE = 37,                 /* T_NEWLINE  */
   YYSYMBOL_T_INDENT = 38,                  /* T_INDENT  */
   YYSYMBOL_T_DEDENT = 39,                  /* T_DEDENT  */
-  YYSYMBOL_YYACCEPT = 40,                  /* $accept  */
-  YYSYMBOL_program = 41,                   /* program  */
-  YYSYMBOL_statement_list = 42,            /* statement_list  */
-  YYSYMBOL_statement = 43,                 /* statement  */
-  YYSYMBOL_declaration = 44,               /* declaration  */
-  YYSYMBOL_attribution = 45,               /* attribution  */
-  YYSYMBOL_expression = 46,                /* expression  */
-  YYSYMBOL_term = 47,                      /* term  */
-  YYSYMBOL_factor = 48,                    /* factor  */
-  YYSYMBOL_if_statement = 49,              /* if_statement  */
-  YYSYMBOL_while_statement = 50,           /* while_statement  */
-  YYSYMBOL_for_statement = 51,             /* for_statement  */
-  YYSYMBOL_function_def = 52,              /* function_def  */
-  YYSYMBOL_param_list_opt = 53,            /* param_list_opt  */
-  YYSYMBOL_param_list = 54,                /* param_list  */
-  YYSYMBOL_condition = 55,                 /* condition  */
-  YYSYMBOL_relop = 56,                     /* relop  */
-  YYSYMBOL_return_statement = 57           /* return_statement  */
+  YYSYMBOL_T_T = 40,                       /* T_T  */
+  YYSYMBOL_T_F = 41,                       /* T_F  */
+  YYSYMBOL_T_PT = 42,                      /* T_PT  */
+  YYSYMBOL_T_UNKNOWN = 43,                 /* T_UNKNOWN  */
+  YYSYMBOL_YYACCEPT = 44,                  /* $accept  */
+  YYSYMBOL_program = 45,                   /* program  */
+  YYSYMBOL_statement_list = 46,            /* statement_list  */
+  YYSYMBOL_statement = 47,                 /* statement  */
+  YYSYMBOL_declaration = 48,               /* declaration  */
+  YYSYMBOL_attribution = 49,               /* attribution  */
+  YYSYMBOL_expression = 50,                /* expression  */
+  YYSYMBOL_term = 51,                      /* term  */
+  YYSYMBOL_factor = 52,                    /* factor  */
+  YYSYMBOL_if_statement = 53,              /* if_statement  */
+  YYSYMBOL_while_statement = 54,           /* while_statement  */
+  YYSYMBOL_for_statement = 55,             /* for_statement  */
+  YYSYMBOL_function_def = 56,              /* function_def  */
+  YYSYMBOL_param_list_opt = 57,            /* param_list_opt  */
+  YYSYMBOL_param_list = 58,                /* param_list  */
+  YYSYMBOL_condition = 59,                 /* condition  */
+  YYSYMBOL_relop = 60,                     /* relop  */
+  YYSYMBOL_return_statement = 61           /* return_statement  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -499,7 +509,7 @@ union yyalloc
 #define YYLAST   141
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  40
+#define YYNTOKENS  44
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  18
 /* YYNRULES -- Number of rules.  */
@@ -508,7 +518,7 @@ union yyalloc
 #define YYNSTATES  89
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   294
+#define YYMAXUTOK   298
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -551,18 +561,18 @@ static const yytype_int8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39
+      35,    36,    37,    38,    39,    40,    41,    42,    43
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    54,    54,    65,    66,    71,    72,    73,    74,    75,
-      76,    77,    82,    90,   102,   114,   115,   116,   120,   121,
-     122,   126,   127,   128,   129,   134,   147,   168,   185,   203,
-     220,   221,   225,   226,   231,   235,   235,   235,   235,   235,
-     235,   240
+       0,    67,    67,    79,    80,    85,    86,    87,    88,    89,
+      90,    91,    96,   104,   116,   130,   131,   132,   136,   137,
+     142,   146,   147,   148,   153,   158,   172,   193,   210,   228,
+     247,   248,   252,   256,   264,   282,   283,   284,   285,   286,
+     287,   292
 };
 #endif
 
@@ -584,10 +594,11 @@ static const char *const yytname[] =
   "T_MINUS", "T_MUL", "T_DIV", "T_MOD", "T_AND", "T_OR", "T_LPAREN",
   "T_RPAREN", "T_LBRACKET", "T_RBRACKET", "T_COMMA", "T_FLOAT_NUM",
   "T_INT_NUM", "T_STRING", "T_ID", "T_NEWLINE", "T_INDENT", "T_DEDENT",
-  "$accept", "program", "statement_list", "statement", "declaration",
-  "attribution", "expression", "term", "factor", "if_statement",
-  "while_statement", "for_statement", "function_def", "param_list_opt",
-  "param_list", "condition", "relop", "return_statement", YY_NULLPTR
+  "T_T", "T_F", "T_PT", "T_UNKNOWN", "$accept", "program",
+  "statement_list", "statement", "declaration", "attribution",
+  "expression", "term", "factor", "if_statement", "while_statement",
+  "for_statement", "function_def", "param_list_opt", "param_list",
+  "condition", "relop", "return_statement", YY_NULLPTR
 };
 
 static const char *
@@ -697,25 +708,25 @@ static const yytype_int8 yycheck[] =
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,     4,     7,     8,     9,    11,    12,    36,    41,
-      42,    43,    44,    45,    49,    50,    51,    52,    57,    36,
-      28,    33,    34,    36,    46,    47,    48,    55,    36,    55,
-      46,    36,    36,    20,     0,    43,    28,    46,    14,    15,
-      16,    17,    18,    19,    21,    22,    56,    23,    24,    37,
-      10,    37,    37,    37,    37,    46,    36,    53,    54,    29,
-      47,    47,    46,    48,    48,    38,    46,    38,    37,    29,
-      32,    42,    37,    42,    37,    36,    39,    38,    39,    38,
-       5,    42,    42,    37,    39,    39,    38,    42,    39
+       0,     3,     4,     7,     8,     9,    11,    12,    36,    45,
+      46,    47,    48,    49,    53,    54,    55,    56,    61,    36,
+      28,    33,    34,    36,    50,    51,    52,    59,    36,    59,
+      50,    36,    36,    20,     0,    47,    28,    50,    14,    15,
+      16,    17,    18,    19,    21,    22,    60,    23,    24,    37,
+      10,    37,    37,    37,    37,    50,    36,    57,    58,    29,
+      51,    51,    50,    52,    52,    38,    50,    38,    37,    29,
+      32,    46,    37,    46,    37,    36,    39,    38,    39,    38,
+       5,    46,    46,    37,    39,    39,    38,    46,    39
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    40,    41,    42,    42,    43,    43,    43,    43,    43,
-      43,    43,    44,    44,    45,    46,    46,    46,    47,    47,
-      47,    48,    48,    48,    48,    49,    49,    50,    51,    52,
-      53,    53,    54,    54,    55,    56,    56,    56,    56,    56,
-      56,    57
+       0,    44,    45,    46,    46,    47,    47,    47,    47,    47,
+      47,    47,    48,    48,    49,    50,    50,    50,    51,    51,
+      51,    52,    52,    52,    52,    53,    53,    54,    55,    56,
+      57,    57,    58,    58,    59,    60,    60,    60,    60,    60,
+      60,    61
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -1189,180 +1200,263 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: statement_list  */
-#line 55 "sloth.y"
+#line 68 "sloth.y"
         {
+            /* Cabeçalho da árvore */
             printf("program\n");
             indent_level++;
             print_indent(); printf("statement_list\n");
-            indent_level++;
-        }
-#line 1200 "sloth.tab.c"
-    break;
-
-  case 12: /* declaration: T_I T_ID T_NEWLINE  */
-#line 83 "sloth.y"
-        {
-            print_indent(); printf("declaration\n");
-            indent_level++;
-            print_indent(); printf("type: int\n");
-            print_indent(); printf("id: %s\n", yytext);
-            indent_level--;
+            /* statement_list já imprimirá seus statements com base no indent_level atual */
         }
 #line 1212 "sloth.tab.c"
     break;
 
-  case 13: /* declaration: T_FL T_ID T_NEWLINE  */
-#line 91 "sloth.y"
+  case 12: /* declaration: T_I T_ID T_NEWLINE  */
+#line 97 "sloth.y"
         {
             print_indent(); printf("declaration\n");
             indent_level++;
-            print_indent(); printf("type: float\n");
-            print_indent(); printf("id: %s\n", yytext);
+            print_indent(); printf("type: int\n");
+            print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-1].ival)]);
             indent_level--;
         }
 #line 1224 "sloth.tab.c"
     break;
 
-  case 14: /* attribution: T_ID T_ASSIGN expression T_NEWLINE  */
-#line 103 "sloth.y"
+  case 13: /* declaration: T_FL T_ID T_NEWLINE  */
+#line 105 "sloth.y"
         {
-            print_indent(); printf("attribution\n");
+            print_indent(); printf("declaration\n");
             indent_level++;
-            print_indent(); printf("id: %s\n", yytext);
-            print_indent(); printf("expression\n");
+            print_indent(); printf("type: float\n");
+            print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-1].ival)]);
             indent_level--;
         }
 #line 1236 "sloth.tab.c"
     break;
 
+  case 14: /* attribution: T_ID T_ASSIGN expression T_NEWLINE  */
+#line 117 "sloth.y"
+        {
+            print_indent(); printf("attribution\n");
+            indent_level++;
+            print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-3].ival)]);
+            print_indent(); printf("expression\n");
+            indent_level++;
+            print_indent(); printf("value: %f\n", (yyvsp[-1].fval));
+            indent_level -= 2;
+        }
+#line 1250 "sloth.tab.c"
+    break;
+
   case 15: /* expression: expression T_PLUS term  */
-#line 114 "sloth.y"
-                               { /* soma */ }
-#line 1242 "sloth.tab.c"
+#line 130 "sloth.y"
+                               { (yyval.fval) = (yyvsp[-2].fval) + (yyvsp[0].fval); }
+#line 1256 "sloth.tab.c"
     break;
 
   case 16: /* expression: expression T_MINUS term  */
-#line 115 "sloth.y"
-                               { /* sub */ }
-#line 1248 "sloth.tab.c"
+#line 131 "sloth.y"
+                               { (yyval.fval) = (yyvsp[-2].fval) - (yyvsp[0].fval); }
+#line 1262 "sloth.tab.c"
+    break;
+
+  case 17: /* expression: term  */
+#line 132 "sloth.y"
+                               { (yyval.fval) = (yyvsp[0].fval); }
+#line 1268 "sloth.tab.c"
     break;
 
   case 18: /* term: term T_MUL factor  */
-#line 120 "sloth.y"
-                               { /* mult */ }
-#line 1254 "sloth.tab.c"
+#line 136 "sloth.y"
+                               { (yyval.fval) = (yyvsp[-2].fval) * (yyvsp[0].fval); }
+#line 1274 "sloth.tab.c"
     break;
 
   case 19: /* term: term T_DIV factor  */
-#line 121 "sloth.y"
-                               { /* div */ }
-#line 1260 "sloth.tab.c"
+#line 137 "sloth.y"
+                               {
+                                   if ((yyvsp[0].fval) == 0.0) {
+                                       yyerror("Divisao por zero (avaliacao de expressao)"); (yyval.fval) = 0.0;
+                                   } else (yyval.fval) = (yyvsp[-2].fval) / (yyvsp[0].fval);
+                               }
+#line 1284 "sloth.tab.c"
+    break;
+
+  case 20: /* term: factor  */
+#line 142 "sloth.y"
+                               { (yyval.fval) = (yyvsp[0].fval); }
+#line 1290 "sloth.tab.c"
+    break;
+
+  case 21: /* factor: T_INT_NUM  */
+#line 146 "sloth.y"
+                               { (yyval.fval) = (double)(yyvsp[0].ival); }
+#line 1296 "sloth.tab.c"
+    break;
+
+  case 22: /* factor: T_FLOAT_NUM  */
+#line 147 "sloth.y"
+                               { (yyval.fval) = (yyvsp[0].fval); }
+#line 1302 "sloth.tab.c"
+    break;
+
+  case 23: /* factor: T_ID  */
+#line 148 "sloth.y"
+                               {
+                                  /* variável: não avaliamos valor (ainda), colocamos 0.0
+                                     mas imprimimos a referência se desejado quando reduzido em contextos */
+                                  (yyval.fval) = 0.0;
+                              }
+#line 1312 "sloth.tab.c"
+    break;
+
+  case 24: /* factor: T_LPAREN expression T_RPAREN  */
+#line 153 "sloth.y"
+                                   { (yyval.fval) = (yyvsp[-1].fval); }
+#line 1318 "sloth.tab.c"
     break;
 
   case 25: /* if_statement: T_IF condition T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 135 "sloth.y"
+#line 159 "sloth.y"
         {
             print_indent(); printf("if_statement\n");
             indent_level++;
             print_indent(); printf("condition\n");
             indent_level++;
-            print_indent(); printf("(expressão booleana)\n");
-            indent_level--;
+            /* imprimimos forma simplificada da condição (a árvore detalhada pode ser expandida) */
+            print_indent(); printf("(relational expression)\n");
+            indent_level -= 2;
             print_indent(); printf("then_block\n");
             indent_level++;
-            print_indent(); printf("(statements)\n");
-            indent_level -= 2;
+            /* statements inside then_block were printed by statement_list */
+            indent_level--;
         }
-#line 1277 "sloth.tab.c"
+#line 1336 "sloth.tab.c"
     break;
 
   case 26: /* if_statement: T_IF condition T_NEWLINE T_INDENT statement_list T_DEDENT T_EL T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 148 "sloth.y"
+#line 173 "sloth.y"
         {
             print_indent(); printf("if_else_statement\n");
             indent_level++;
             print_indent(); printf("condition\n");
             indent_level++;
-            print_indent(); printf("(expressão booleana)\n");
-            indent_level--;
+            print_indent(); printf("(relational expression)\n");
+            indent_level -= 2;
             print_indent(); printf("then_block\n");
             indent_level++;
-            print_indent(); printf("(statements)\n");
+            /* then statements printed by nested statement_list */
             indent_level--;
             print_indent(); printf("else_block\n");
             indent_level++;
-            print_indent(); printf("(statements)\n");
-            indent_level -= 2;
+            /* else statements printed by nested statement_list */
+            indent_level--;
         }
-#line 1298 "sloth.tab.c"
+#line 1357 "sloth.tab.c"
     break;
 
   case 27: /* while_statement: T_WL condition T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 169 "sloth.y"
+#line 194 "sloth.y"
         {
             print_indent(); printf("while_statement\n");
             indent_level++;
             print_indent(); printf("condition\n");
             indent_level++;
-            print_indent(); printf("(expressão booleana)\n");
-            indent_level--;
+            print_indent(); printf("(relational expression)\n");
+            indent_level -= 2;
             print_indent(); printf("body\n");
             indent_level++;
-            print_indent(); printf("(statements)\n");
-            indent_level -= 2;
+            /* body statements printed by statement_list */
+            indent_level--;
         }
-#line 1315 "sloth.tab.c"
+#line 1374 "sloth.tab.c"
     break;
 
   case 28: /* for_statement: T_FR T_ID T_IN expression T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 186 "sloth.y"
+#line 211 "sloth.y"
         {
             print_indent(); printf("for_statement\n");
             indent_level++;
-            print_indent(); printf("iterator: %s\n", yytext);
+            print_indent(); printf("iterator: %s\n", symbol_table[(yyvsp[-6].ival)]);
             print_indent(); printf("range_expression\n");
             indent_level++;
-            print_indent(); printf("(expressão)\n");
-            indent_level--;
+            print_indent(); printf("(expression)\n");
+            indent_level -= 1;
             print_indent(); printf("body\n");
             indent_level++;
-            print_indent(); printf("(statements)\n");
-            indent_level -= 2;
+            /* body printed by statement_list */
+            indent_level--;
         }
-#line 1333 "sloth.tab.c"
+#line 1392 "sloth.tab.c"
     break;
 
   case 29: /* function_def: T_FN T_ID T_LPAREN param_list_opt T_RPAREN T_NEWLINE T_INDENT statement_list T_DEDENT  */
-#line 204 "sloth.y"
+#line 229 "sloth.y"
         {
             print_indent(); printf("function_def\n");
             indent_level++;
-            print_indent(); printf("id: %s\n", yytext);
+            print_indent(); printf("id: %s\n", symbol_table[(yyvsp[-7].ival)]);
             print_indent(); printf("parameters\n");
             indent_level++;
             print_indent(); printf("(param_list)\n");
             indent_level--;
             print_indent(); printf("body\n");
             indent_level++;
-            print_indent(); printf("(statements)\n");
-            indent_level -= 2;
+            /* body printed by statement_list */
+            indent_level--;
+            indent_level--;
         }
-#line 1351 "sloth.tab.c"
+#line 1411 "sloth.tab.c"
+    break;
+
+  case 32: /* param_list: T_ID  */
+#line 253 "sloth.y"
+        {
+            print_indent(); printf("param: %s\n", symbol_table[(yyvsp[0].ival)]);
+        }
+#line 1419 "sloth.tab.c"
+    break;
+
+  case 33: /* param_list: param_list T_COMMA T_ID  */
+#line 257 "sloth.y"
+        {
+            print_indent(); printf("param: %s\n", symbol_table[(yyvsp[0].ival)]);
+        }
+#line 1427 "sloth.tab.c"
+    break;
+
+  case 34: /* condition: expression relop expression  */
+#line 265 "sloth.y"
+    {
+        /* imprime estrutura simplificada da condição */
+        print_indent(); printf("condition\n");
+        indent_level++;
+        print_indent(); printf("left_expr (computed?)\n");
+        print_indent(); printf("relop\n");
+        indent_level++;
+        print_indent(); /* print symbol of relop */
+        printf("(relop)\n");
+        indent_level--;
+        print_indent(); printf("right_expr (computed?)\n");
+        indent_level--;
+    }
+#line 1445 "sloth.tab.c"
     break;
 
   case 41: /* return_statement: T_R expression T_NEWLINE  */
-#line 241 "sloth.y"
+#line 293 "sloth.y"
         {
             print_indent(); printf("return_statement\n");
             indent_level++;
             print_indent(); printf("expression\n");
             indent_level--;
         }
-#line 1362 "sloth.tab.c"
+#line 1456 "sloth.tab.c"
     break;
 
 
-#line 1366 "sloth.tab.c"
+#line 1460 "sloth.tab.c"
 
       default: break;
     }
@@ -1555,16 +1649,37 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 249 "sloth.y"
+#line 301 "sloth.y"
 
 
 /* ==============================
    SEÇÃO DE CÓDIGO DO USUÁRIO
    ============================== */
 
-int main() {
+int main(int argc, char **argv) {
+    FILE *infile = NULL;
+    if (argc > 1) {
+        infile = fopen(argv[1], "r");
+        if (!infile) {
+            fprintf(stderr, "Erro ao abrir arquivo '%s'\n", argv[1]);
+            return 1;
+        }
+        yyin = infile;
+    }
+
+    /* Inicializa o lexer (pilha de indentação, etc.) */
+    init_lexer();
+
     printf("=== Iniciando análise sintática da linguagem Sloth ===\n");
-    return yyparse();
+    int res = yyparse();
+
+    /* libera tabela de símbolos alocada pelo lexer */
+    for (int i = 0; i < symbol_count; i++) {
+        free(symbol_table[i]);
+    }
+
+    if (infile) fclose(infile);
+    return res;
 }
 
 void yyerror(const char *s) {
