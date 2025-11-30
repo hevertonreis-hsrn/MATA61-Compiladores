@@ -1,0 +1,7 @@
+I numeros = [1, 2, 3, 4, 5]
+I soma = 0
+
+FR n IN numeros
+	soma = soma + n
+
+PT 'Soma final: $soma'

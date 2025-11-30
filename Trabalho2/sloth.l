@@ -5,196 +5,234 @@
 
 #include "sloth.tab.h"
 
-/* Flex já gerencia yylineno */
 int yylineno;
 
-/* -------------------------------
-   INDENTAÇÃO ESTILO PYTHON
-   ------------------------------- */
+typedef enum {
+    T_UNKNOWN = 296
+} TokenType;
 
-int current_indent = 0;
 int indent_stack[100];
 int indent_top = 0;
 int pending_dedents = 0;
 int paren_level = 0;
 int tabsize = 8;
 
-/* -------------------------------
-   TABELA DE SÍMBOLOS
-   ------------------------------- */
+int line_count = 1;
 
+/* tabela de símbolos */
 #define MAX_SYMBOLS 200
 char *symbol_table[MAX_SYMBOLS];
 int symbol_count = 0;
 
+/* indicador de início de linha */
+int at_bol = 1;
+
+/* Função utilitária */
 int get_symbol_position(const char *id) {
     for (int i = 0; i < symbol_count; i++) {
-        if (strcmp(symbol_table[i], id) == 0)
-            return i;
+        if (strcmp(symbol_table[i], id) == 0) return i;
     }
     symbol_table[symbol_count] = strdup(id);
     return symbol_count++;
 }
 
-/* Calcula coluna de indentação */
-int compute_indent_column(const char *s) {
-    int col = 0;
+static int count_leading_tabs(const char *s) {
+    int n = 0;
     for (const char *p = s; *p; ++p) {
-        if (*p == ' ')
-            col += 1;
-        else if (*p == '\t') {
-            int add = tabsize - (col % tabsize);
-            col += add;
-        }
+        if (*p == '\t') n++;
+        else if (*p == ' ') continue;
+        else break;
     }
-    return col;
+    return n;
 }
 
-/* -----------------------------------------------------
-   Função opcional para inicializar variáveis do lexer.
-   Chame isto no main() do Bison ANTES de yyparse().
-   ----------------------------------------------------- */
 void init_lexer() {
-    indent_top = 0;
     indent_stack[0] = 0;
+    indent_top = 0;
     pending_dedents = 0;
     paren_level = 0;
+    line_count = 1;
+    symbol_count = 0;
+    at_bol = 1;
 }
+
+static int emit_dedent_if_needed() {
+    if (!at_bol) return 0;
+    if (paren_level != 0) { at_bol = 0; return 0; }
+
+    if (indent_stack[indent_top] > 0) {
+        int dedents_needed = 0;
+        while (indent_top > 0) {
+            indent_top--;
+            dedents_needed++;
+        }
+
+        pending_dedents = dedents_needed - 1;
+
+        at_bol = 0;
+        return T_DEDENT;
+    }
+    at_bol = 0;
+    return 0;
+}
+
+/* Macro auxiliar: chama emit_dedent_if_needed() e garante retorno a INITIAL
+   caso não existam mais pending_dedents, ou entra em DEDENT_MODE caso haja. */
+#define CHECK_DEDENT() \
+    do { \
+        int _tok = emit_dedent_if_needed(); \
+        if (_tok == T_DEDENT) { \
+            yyless(0); \
+            if (pending_dedents > 0) { BEGIN(DEDENT_MODE); } \
+            else { BEGIN(INITIAL); } \
+            return T_DEDENT; \
+        } \
+    } while (0)
 
 %}
 
+/* opções */
 %option noyywrap
 %option yylineno
-
 %x DEDENT_MODE
 
-/* Expressões Regulares */
+/* regexps */
 DIGITO      [0-9]
 LETRA       [a-zA-Z_]
 ID          {LETRA}({LETRA}|{DIGITO})*
 INT         {DIGITO}+
-FLOAT       {DIGITO}+\.{DIGITO}+
+FLOAT       {DIGITO}+\.{DIGITO}+ 
 STRING      (\"[^\"\n]*\"|\'[^\'\n]*\')
 COMMENT     \#[^\n]*
-WS          [ \t]+
 
 %%
 
-<DEDENT_MODE>"" {
+<DEDENT_MODE>. {
+    /* Casa qualquer caractere em DEDENT_MODE para garantir que o ECHO não ocorra */
+    yyless(0); /* Devolve o caractere que casou para a stream de entrada */
+
     if (pending_dedents > 0) {
         pending_dedents--;
         if (pending_dedents == 0) BEGIN(INITIAL);
         return T_DEDENT;
-    } else {
-        BEGIN(INITIAL);
     }
+
+    /* Se não houver mais pendentes, volta para INITIAL e deixa o caractere ser processado */
+    BEGIN(INITIAL);
+    yyless(yyleng); /* Não faz nada, já está no buffer, só para fins de clareza */
 }
 
-^[ \t]*$   { /* linha realmente vazia — não retorna NEWLINE */ }
+^[ \t]*\n    {
+    line_count++;
+    at_bol = 1;
+}
 
-^[ \t]+ {
-    if (paren_level == 0) {
-        int newcol = compute_indent_column(yytext);
-        int topcol = indent_stack[indent_top];
+^[ \t]+      {
+    if (paren_level > 0) {
+        /* dentro de parênteses: não considera indentação para blocos */
+        at_bol = 0;
+    } else {
+        int newlevel = count_leading_tabs(yytext);
+        int top = indent_stack[indent_top];
 
-        if (newcol > topcol) {
+        if (newlevel > top) {
             indent_top++;
-            indent_stack[indent_top] = newcol;
+            if (indent_top >= 100) {
+                fprintf(stderr, "Erro: pilha de indentation overflow\n");
+                exit(1);
+            }
+            indent_stack[indent_top] = newlevel;
+            at_bol = 0;
             return T_INDENT;
-        } 
-        else if (newcol < topcol) {
+        } else if (newlevel < top) {
             int dedents_needed = 0;
-            while (indent_top > 0 && indent_stack[indent_top] > newcol) {
+            while (indent_top > 0 && indent_stack[indent_top] > newlevel) {
                 indent_top--;
                 dedents_needed++;
             }
-            if (indent_stack[indent_top] != newcol) {
-                fprintf(stderr, "Indentation error at line %d\n", yylineno);
+            if (indent_stack[indent_top] != newlevel) {
+                fprintf(stderr,
+                    "Indentation error at line %d: unexpected indent level %d (top=%d)\n",
+                    line_count, newlevel, indent_stack[indent_top]);
                 exit(1);
             }
             if (dedents_needed > 0) {
                 pending_dedents = dedents_needed - 1;
-                if (pending_dedents > 0)
-                    BEGIN(DEDENT_MODE);
+                if (pending_dedents > 0) BEGIN(DEDENT_MODE);
+                at_bol = 0;
                 return T_DEDENT;
             }
+        } else {
+            at_bol = 0;
         }
     }
 }
 
-^[ \t]* {
-    if (paren_level == 0) {
-        if (indent_stack[indent_top] > 0) {
-            int dedents = 0;
-            while (indent_top > 0) { indent_top--; dedents++; }
-            pending_dedents = dedents - 1;
-            if (pending_dedents > 0) BEGIN(DEDENT_MODE);
-            return T_DEDENT;
-        }
-    }
-}
+\r { /* ignora carriage returns do Windows */ }
 
 \n {
-    if (paren_level == 0)
+    line_count++;
+    at_bol = 1;
+    if (paren_level == 0) {
         return T_NEWLINE;
+    }
 }
 
-"("   { paren_level++; return T_LPAREN; }
-")"   { if (paren_level > 0) paren_level--; return T_RPAREN; }
-"["   { paren_level++; return T_LBRACKET; }
-"]"   { if (paren_level > 0) paren_level--; return T_RBRACKET; }
+"("        { CHECK_DEDENT(); paren_level++; at_bol = 0; return T_LPAREN; }
+")"        { CHECK_DEDENT(); if (paren_level > 0) paren_level--; at_bol = 0; return T_RPAREN; }
+"["        { CHECK_DEDENT(); paren_level++; at_bol = 0; return T_LBRACKET; }
+"]"        { CHECK_DEDENT(); if (paren_level > 0) paren_level--; at_bol = 0; return T_RBRACKET; }
 
-{COMMENT}   { /* ignora */ }
+{COMMENT}  { CHECK_DEDENT(); at_bol = 0; /* ignora comentário */ }
 
-"FN"  { return T_FN; }
-"IF"  { return T_IF; }
-"EL"  { return T_EL; }
-"EF"  { return T_EF; }
-"FR"  { return T_FR; }
-"WL"  { return T_WL; }
-"R"   { return T_R; }
-"I"   { return T_I; }
-"FL"  { return T_FL; }
-"S"   { return T_S; }
-"T"   { return T_T; }
-"F"   { return T_F; }
-"PT"  { return T_PT; }
-"IN"  { return T_IN; }
+"FN"       { CHECK_DEDENT(); at_bol = 0; return T_FN; }
+"IF"       { CHECK_DEDENT(); at_bol = 0; return T_IF; }
+"EL"       { CHECK_DEDENT(); at_bol = 0; return T_EL; }
+"EF"       { CHECK_DEDENT(); at_bol = 0; return T_EF; }
+"FR"       { CHECK_DEDENT(); at_bol = 0; return T_FR; }
+"WL"       { CHECK_DEDENT(); at_bol = 0; return T_WL; }
+"R"        { CHECK_DEDENT(); at_bol = 0; return T_R; }
+"I"        { CHECK_DEDENT(); at_bol = 0; return T_I; }
+"FL"       { CHECK_DEDENT(); at_bol = 0; return T_FL; }
+"S"        { CHECK_DEDENT(); at_bol = 0; return T_S; }
+"T"        { CHECK_DEDENT(); at_bol = 0; return T_T; }
+"F"        { CHECK_DEDENT(); at_bol = 0; return T_F; }
+"PT"       { CHECK_DEDENT(); at_bol = 0; return T_PT; }
+"IN"       { CHECK_DEDENT(); at_bol = 0; return T_IN; }
 
-"=="  { return T_EQ; }
-"!="  { return T_NEQ; }
-">="  { return T_GTE; }
-"<="  { return T_LTE; }
-">"   { return T_GT; }
-"<"   { return T_LT; }
-"="   { return T_ASSIGN; }
-"\+"  { return T_PLUS; }
-"-"   { return T_MINUS; }
-"%"   { return T_MOD; }
-"\*"  { return T_MUL; }
-"/"   { return T_DIV; }
-"&"   { return T_AND; }
-"|"   { return T_OR; }
-","   { return T_COMMA; }
+"=="       { CHECK_DEDENT(); at_bol = 0; return T_EQ; }
+"!="       { CHECK_DEDENT(); at_bol = 0; return T_NEQ; }
+">="       { CHECK_DEDENT(); at_bol = 0; return T_GTE; }
+"<="       { CHECK_DEDENT(); at_bol = 0; return T_LTE; }
+">"        { CHECK_DEDENT(); at_bol = 0; return T_GT; }
+"<"        { CHECK_DEDENT(); at_bol = 0; return T_LT; }
+"="        { CHECK_DEDENT(); at_bol = 0; return T_ASSIGN; }
+"\+"       { CHECK_DEDENT(); at_bol = 0; return T_PLUS; }
+"-"        { CHECK_DEDENT(); at_bol = 0; return T_MINUS; }
+"%"        { CHECK_DEDENT(); at_bol = 0; return T_MOD; }
+"\*"       { CHECK_DEDENT(); at_bol = 0; return T_MUL; }
+"/"        { CHECK_DEDENT(); at_bol = 0; return T_DIV; }
+"&"        { CHECK_DEDENT(); at_bol = 0; return T_AND; }
+"|"        { CHECK_DEDENT(); at_bol = 0; return T_OR; }
 
-{FLOAT}   { yylval.fval = atof(yytext); return T_FLOAT_NUM; }
-{INT}     { yylval.ival = atoi(yytext); return T_INT_NUM; }
-{STRING}  { yylval.str = strdup(yytext); return T_STRING; }
+","        { CHECK_DEDENT(); at_bol = 0; return T_COMMA; }
 
-{ID} {
+{FLOAT}    { CHECK_DEDENT(); yylval.fval = atof(yytext); at_bol = 0; return T_FLOAT_NUM; }
+{INT}      { CHECK_DEDENT(); yylval.ival = atoi(yytext); at_bol = 0; return T_INT_NUM; }
+{STRING}   { CHECK_DEDENT(); yylval.str = strdup(yytext); at_bol = 0; return T_STRING; }
+
+{ID}       {
+    CHECK_DEDENT();
     yylval.ival = get_symbol_position(yytext);
+    at_bol = 0;
     return T_ID;
 }
 
-{WS}  { /* ignora */ }
+[ \t]+     { at_bol = 0; }
 
-. {
-    fprintf(stderr, "Erro léxico na linha %d: caractere inesperado '%s'\n",
-            yylineno, yytext);
-    return T_UNKNOWN;
-}
+.          { fprintf(stderr, "Erro léxico na linha %d: caractere inesperado '%s'\n", yylineno, yytext); return T_UNKNOWN; }
 
-<<EOF>> {
+<<EOF>>    {
     while (indent_top > 0) {
         indent_top--;
         return T_DEDENT;

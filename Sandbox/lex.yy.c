@@ -162,27 +162,8 @@ extern FILE *yyin, *yyout;
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
     
-    /* Note: We specifically omit the test for yy_rule_can_match_eol because it requires
-     *       access to the local variable yy_act. Since yyless() is a macro, it would break
-     *       existing scanners that call yyless() from OUTSIDE yylex.
-     *       One obvious solution it to make yy_act a global. I tried that, and saw
-     *       a 5% performance hit in a non-yylineno scanner, because yy_act is
-     *       normally declared as a register variable-- so it is not worth it.
-     */
-    #define  YY_LESS_LINENO(n) \
-            do { \
-                int yyl;\
-                for ( yyl = n; yyl < yyleng; ++yyl )\
-                    if ( yytext[yyl] == '\n' )\
-                        --yylineno;\
-            }while(0)
-    #define YY_LINENO_REWIND_TO(dst) \
-            do {\
-                const char *p;\
-                for ( p = yy_cp-1; p >= (dst); --p)\
-                    if ( *p == '\n' )\
-                        --yylineno;\
-            }while(0)
+    #define YY_LESS_LINENO(n)
+    #define YY_LINENO_REWIND_TO(ptr)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -373,8 +354,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 46
-#define YY_END_OF_BUFFER 47
+#define YY_NUM_RULES 48
+#define YY_END_OF_BUFFER 49
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -382,15 +363,15 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[68] =
+static const flex_int16_t yy_accept[70] =
     {   0,
-        0,    0,    0,    0,   47,   45,   44,    5,    4,   45,
-       45,   10,   34,   37,   45,    6,    7,   35,   32,   39,
-       33,   36,   41,   30,   31,   29,   43,   43,   22,   18,
-       43,   17,   20,   21,   43,    8,    9,   38,    3,    2,
-        1,   46,   44,   26,    0,   42,   10,    0,    0,   41,
-       28,   25,   27,   43,   14,   13,   19,   11,   15,   12,
-       24,   23,   16,    3,    2,   40,    0
+        0,    0,    0,    0,   49,   47,   46,    5,    4,   47,
+       47,   12,   36,   39,   47,    6,    7,   37,   34,   41,
+       35,   38,   43,   32,   33,   31,   45,   45,   24,   20,
+       45,   19,   22,   23,   45,    8,    9,   10,   40,   11,
+        3,    2,    1,   48,   46,   28,    0,   44,   12,    0,
+        0,   43,   30,   27,   29,   45,   16,   15,   21,   13,
+       17,   14,   26,   25,   18,    3,    2,   42,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -408,7 +389,7 @@ static const YY_CHAR yy_ec[256] =
 
        23,   23,   23,   23,   23,   23,   23,   23,   23,   23,
        23,   23,   23,   23,   23,   23,   23,   23,   23,   23,
-       23,   23,    1,   36,    1,    1,    1,    1,    1,    1,
+       23,   23,   36,   37,   38,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -425,78 +406,73 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[37] =
+static const YY_CHAR yy_meta[39] =
     {   0,
         1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    3,    1,
         1,    1,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    3,    3,    1,    1,    1
+        3,    3,    3,    1,    1,    1,    1,    1
     } ;
 
-static const flex_int16_t yy_base[73] =
+static const flex_int16_t yy_base[75] =
     {   0,
-        0,   35,   77,   76,   78,   81,   75,   81,   81,   55,
-       69,    0,   81,   81,   64,   81,   81,   81,   81,   81,
-       81,   81,   22,   52,   51,   50,    0,   15,   16,   20,
-       38,    0,    0,    0,   42,   81,   81,   81,   47,   81,
-       81,   81,   66,   81,   60,   81,    0,   53,   41,   34,
-       81,   81,   81,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,    0,   52,   81,   33,   81,   55,   58,   61,
-       64,   44
+        0,   37,   79,   78,   80,   83,   77,   83,   83,   57,
+       71,    0,   83,   83,   66,   83,   83,   83,   83,   83,
+       83,   83,   24,   54,   53,   52,    0,   17,   18,   22,
+       40,    0,    0,    0,   44,   83,   83,   83,   83,   83,
+       49,   83,   83,   83,   68,   83,   62,   83,    0,   55,
+       43,   36,   83,   83,   83,    0,    0,    0,    0,    0,
+        0,    0,    0,    0,    0,   54,   83,   35,   83,   57,
+       60,   63,   66,   46
     } ;
 
-static const flex_int16_t yy_def[73] =
+static const flex_int16_t yy_def[75] =
     {   0,
-       67,    1,   68,   68,   67,   67,   67,   67,   67,   67,
-       69,   70,   67,   67,   71,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   72,   72,   72,   72,
-       72,   72,   72,   72,   72,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   69,   67,   70,   71,   67,   67,
-       67,   67,   67,   72,   72,   72,   72,   72,   72,   72,
-       72,   72,   72,   67,   67,   67,    0,   67,   67,   67,
-       67,   67
+       69,    1,   70,   70,   69,   69,   69,   69,   69,   69,
+       71,   72,   69,   69,   73,   69,   69,   69,   69,   69,
+       69,   69,   69,   69,   69,   69,   74,   74,   74,   74,
+       74,   74,   74,   74,   74,   69,   69,   69,   69,   69,
+       69,   69,   69,   69,   69,   69,   71,   69,   72,   73,
+       69,   69,   69,   69,   69,   74,   74,   74,   74,   74,
+       74,   74,   74,   74,   74,   69,   69,   69,    0,   69,
+       69,   69,   69,   69
     } ;
 
-static const flex_int16_t yy_nxt[118] =
+static const flex_int16_t yy_nxt[122] =
     {   0,
         6,    7,    8,    9,   10,   11,   12,   13,   14,   15,
        16,   17,   18,   19,   20,   21,    6,   22,   23,   24,
        25,   26,   27,   28,   29,   30,   27,   27,   31,   32,
-       33,   34,   35,   36,   37,   38,   39,   40,   49,   55,
-       50,   56,   57,   58,   60,   59,   54,   61,   64,   65,
-       49,   66,   50,   64,   65,   41,   41,   41,   45,   66,
-       45,   47,   46,   47,   48,   46,   48,   43,   63,   62,
-       53,   52,   51,   46,   46,   44,   43,   67,   42,   42,
-        5,   67,   67,   67,   67,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67,
+       33,   34,   35,   36,   37,   38,   39,   40,   41,   42,
+       51,   57,   52,   58,   59,   60,   62,   61,   56,   63,
+       66,   67,   51,   68,   52,   66,   67,   43,   43,   43,
+       47,   68,   47,   49,   48,   49,   50,   48,   50,   45,
+       65,   64,   55,   54,   53,   48,   48,   46,   45,   69,
+       44,   44,    5,   69,   69,   69,   69,   69,   69,   69,
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
 
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
+       69
     } ;
 
-static const flex_int16_t yy_chk[118] =
+static const flex_int16_t yy_chk[122] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    2,    2,   23,   28,
-       23,   28,   29,   29,   30,   29,   72,   30,   39,   39,
-       50,   66,   50,   64,   64,   68,   68,   68,   69,   49,
-       69,   70,   48,   70,   71,   45,   71,   43,   35,   31,
-       26,   25,   24,   15,   11,   10,    7,    5,    4,    3,
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67,
+        1,    1,    1,    1,    1,    1,    1,    1,    2,    2,
+       23,   28,   23,   28,   29,   29,   30,   29,   74,   30,
+       41,   41,   52,   68,   52,   66,   66,   70,   70,   70,
+       71,   51,   71,   72,   50,   72,   73,   47,   73,   45,
+       35,   31,   26,   25,   24,   15,   11,   10,    7,    5,
+        4,    3,   69,   69,   69,   69,   69,   69,   69,   69,
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
 
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
+       69
     } ;
-
-/* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[47] =
-    {   0,
-0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -518,18 +494,64 @@ char *yytext;
 #include <string.h>
 #include <stdlib.h>
 
-#include "sloth.tab.h"
+/* -------------------------------
+    ANALISADOR LÉXICO - LINGUAGEM SLOTH
+   ------------------------------- */
 
-int yylineno;
-
+/* Definições de tokens  */
 typedef enum {
+    T_FN = 258,
+    T_IF = 259,
+    T_EL = 260,
+    T_EF = 261,
+    T_FR = 262,
+    T_WL = 263,
+    T_R = 264,
+    T_I = 265,
+    T_FL = 266,
+    T_S = 267,
+    T_T = 268,
+    T_F = 269,
+    T_PT = 270,
+    T_IN = 271,
+    T_EQ = 272,
+    T_NEQ = 273,
+    T_GTE = 274,
+    T_LTE = 275,
+    T_GT = 276,
+    T_LT = 277,
+    T_ASSIGN = 278,
+    T_PLUS = 279,
+    T_MINUS = 280,
+    T_MOD = 281,
+    T_MUL = 282,
+    T_DIV = 283,
+    T_AND = 284,
+    T_OR = 285,
+    T_LPAREN = 286,
+    T_RPAREN = 287,
+    T_LBRACKET = 288,
+    T_RBRACKET = 289,
+    T_COMMA = 290,
+    T_FLOAT_NUM = 291,
+    T_INT_NUM = 292,
+    T_STRING = 293,
+    T_ID = 294,
+    T_NEWLINE = 295,
+    T_INDENT = 297,
+    T_DEDENT = 298,
     T_UNKNOWN = 296
 } TokenType;
+
+/* -------------------------------
+   Estado do lexer / indentação
+   ------------------------------- */
 
 int indent_stack[100];
 int indent_top = 0;
 int pending_dedents = 0;
 int paren_level = 0;
+
 int tabsize = 8;
 
 int line_count = 1;
@@ -538,6 +560,8 @@ int line_count = 1;
 #define MAX_SYMBOLS 200
 char *symbol_table[MAX_SYMBOLS];
 int symbol_count = 0;
+
+int yylval;
 
 /* indicador de início de linha */
 int at_bol = 1;
@@ -584,6 +608,7 @@ static int emit_dedent_if_needed() {
 
         pending_dedents = dedents_needed - 1;
 
+        printf("<DEDENT>\n");
         at_bol = 0;
         return T_DEDENT;
     }
@@ -604,11 +629,11 @@ static int emit_dedent_if_needed() {
         } \
     } while (0)
 
-#line 608 "lex.yy.c"
+#line 633 "lex.yy.c"
 /* opções */
 
 /* regexps */
-#line 612 "lex.yy.c"
+#line 637 "lex.yy.c"
 
 #define INITIAL 0
 #define DEDENT_MODE 1
@@ -829,10 +854,10 @@ YY_DECL
 		}
 
 	{
-#line 108 "sloth.l"
+#line 156 "sloth.l"
 
 
-#line 836 "lex.yy.c"
+#line 861 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -860,13 +885,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 68 )
+				if ( yy_current_state >= 70 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 81 );
+		while ( yy_base[yy_current_state] != 83 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -878,16 +903,6 @@ yy_find_action:
 			}
 
 		YY_DO_BEFORE_ACTION;
-
-		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
-			{
-			int yyl;
-			for ( yyl = 0; yyl < yyleng; ++yyl )
-				if ( yytext[yyl] == '\n' )
-					
-    yylineno++;
-;
-			}
 
 do_action:	/* This label is used only to access EOF actions. */
 
@@ -902,7 +917,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 110 "sloth.l"
+#line 158 "sloth.l"
 {
     /* Casa qualquer caractere em DEDENT_MODE para garantir que o ECHO não ocorra */
     yyless(0); /* Devolve o caractere que casou para a stream de entrada */
@@ -910,6 +925,7 @@ YY_RULE_SETUP
     if (pending_dedents > 0) {
         pending_dedents--;
         if (pending_dedents == 0) BEGIN(INITIAL);
+        printf("<DEDENT>\n");
         return T_DEDENT;
     }
 
@@ -921,7 +937,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 125 "sloth.l"
+#line 174 "sloth.l"
 {
     line_count++;
     at_bol = 1;
@@ -929,7 +945,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 130 "sloth.l"
+#line 179 "sloth.l"
 {
     if (paren_level > 0) {
         /* dentro de parênteses: não considera indentação para blocos */
@@ -946,6 +962,7 @@ YY_RULE_SETUP
             }
             indent_stack[indent_top] = newlevel;
             at_bol = 0;
+            printf("<INDENT tabs=%d>\n", newlevel);
             return T_INDENT;
         } else if (newlevel < top) {
             int dedents_needed = 0;
@@ -963,6 +980,7 @@ YY_RULE_SETUP
                 pending_dedents = dedents_needed - 1;
                 if (pending_dedents > 0) BEGIN(DEDENT_MODE);
                 at_bol = 0;
+                printf("<DEDENT tabs=%d>\n", newlevel);
                 return T_DEDENT;
             }
         } else {
@@ -973,243 +991,255 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 171 "sloth.l"
+#line 222 "sloth.l"
 { /* ignora carriage returns do Windows */ }
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 173 "sloth.l"
+#line 224 "sloth.l"
 {
     line_count++;
     at_bol = 1;
     if (paren_level == 0) {
+        printf("<NEWLINE>\n");
         return T_NEWLINE;
     }
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 181 "sloth.l"
-{ CHECK_DEDENT(); paren_level++; at_bol = 0; return T_LPAREN; }
+#line 233 "sloth.l"
+{ CHECK_DEDENT(); paren_level++; printf("<LPAREN>\n"); at_bol = 0; return T_LPAREN; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 182 "sloth.l"
-{ CHECK_DEDENT(); if (paren_level > 0) paren_level--; at_bol = 0; return T_RPAREN; }
+#line 234 "sloth.l"
+{ CHECK_DEDENT(); if (paren_level > 0) paren_level--; printf("<RPAREN>\n"); at_bol = 0; return T_RPAREN; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 183 "sloth.l"
-{ CHECK_DEDENT(); paren_level++; at_bol = 0; return T_LBRACKET; }
+#line 235 "sloth.l"
+{ CHECK_DEDENT(); paren_level++; printf("<LBRACKET>\n"); at_bol = 0; return T_LBRACKET; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 184 "sloth.l"
-{ CHECK_DEDENT(); if (paren_level > 0) paren_level--; at_bol = 0; return T_RBRACKET; }
+#line 236 "sloth.l"
+{ CHECK_DEDENT(); if (paren_level > 0) paren_level--; printf("<RBRACKET>\n"); at_bol = 0; return T_RBRACKET; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 186 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; /* ignora comentário */ }
+#line 237 "sloth.l"
+{ CHECK_DEDENT(); paren_level++; printf("<LBRACE>\n"); at_bol = 0; return '{'; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 188 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_FN; }
+#line 238 "sloth.l"
+{ CHECK_DEDENT(); if (paren_level > 0) paren_level--; printf("<RBRACE>\n"); at_bol = 0; return '}'; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 189 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_IF; }
+#line 240 "sloth.l"
+{ CHECK_DEDENT(); at_bol = 0; /* ignora comentário */ }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 190 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_EL; }
+#line 242 "sloth.l"
+{ CHECK_DEDENT(); printf("<FN>\n"); at_bol = 0; return T_FN; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 191 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_EF; }
+#line 243 "sloth.l"
+{ CHECK_DEDENT(); printf("<IF>\n"); at_bol = 0; return T_IF; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 192 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_FR; }
+#line 244 "sloth.l"
+{ CHECK_DEDENT(); printf("<EL>\n"); at_bol = 0; return T_EL; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 193 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_WL; }
+#line 245 "sloth.l"
+{ CHECK_DEDENT(); printf("<EF>\n"); at_bol = 0; return T_EF; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 194 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_R; }
+#line 246 "sloth.l"
+{ CHECK_DEDENT(); printf("<FR>\n"); at_bol = 0; return T_FR; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 195 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_I; }
+#line 247 "sloth.l"
+{ CHECK_DEDENT(); printf("<WL>\n"); at_bol = 0; return T_WL; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 196 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_FL; }
+#line 248 "sloth.l"
+{ CHECK_DEDENT(); printf("<R>\n"); at_bol = 0; return T_R; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 197 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_S; }
+#line 249 "sloth.l"
+{ CHECK_DEDENT(); printf("<I>\n"); at_bol = 0; return T_I; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 198 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_T; }
+#line 250 "sloth.l"
+{ CHECK_DEDENT(); printf("<FL>\n"); at_bol = 0; return T_FL; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 199 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_F; }
+#line 251 "sloth.l"
+{ CHECK_DEDENT(); printf("<S>\n"); at_bol = 0; return T_S; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 200 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_PT; }
+#line 252 "sloth.l"
+{ CHECK_DEDENT(); printf("<T>\n"); at_bol = 0; return T_T; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 201 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_IN; }
+#line 253 "sloth.l"
+{ CHECK_DEDENT(); printf("<F>\n"); at_bol = 0; return T_F; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 203 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_EQ; }
+#line 254 "sloth.l"
+{ CHECK_DEDENT(); printf("<PT>\n"); at_bol = 0; return T_PT; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 204 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_NEQ; }
+#line 255 "sloth.l"
+{ CHECK_DEDENT(); printf("<IN>\n"); at_bol = 0; return T_IN; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 205 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_GTE; }
+#line 257 "sloth.l"
+{ CHECK_DEDENT(); printf("<EQ>\n"); at_bol = 0; return T_EQ; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 206 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_LTE; }
+#line 258 "sloth.l"
+{ CHECK_DEDENT(); printf("<NEQ>\n"); at_bol = 0; return T_NEQ; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 207 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_GT; }
+#line 259 "sloth.l"
+{ CHECK_DEDENT(); printf("<GTE>\n"); at_bol = 0; return T_GTE; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 208 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_LT; }
+#line 260 "sloth.l"
+{ CHECK_DEDENT(); printf("<LTE>\n"); at_bol = 0; return T_LTE; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 209 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_ASSIGN; }
+#line 261 "sloth.l"
+{ CHECK_DEDENT(); printf("<GT>\n"); at_bol = 0; return T_GT; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 210 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_PLUS; }
+#line 262 "sloth.l"
+{ CHECK_DEDENT(); printf("<LT>\n"); at_bol = 0; return T_LT; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 211 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_MINUS; }
+#line 263 "sloth.l"
+{ CHECK_DEDENT(); printf("<ASSIGN>\n"); at_bol = 0; return T_ASSIGN; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 212 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_MOD; }
+#line 264 "sloth.l"
+{ CHECK_DEDENT(); printf("<PLUS>\n"); at_bol = 0; return T_PLUS; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 213 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_MUL; }
+#line 265 "sloth.l"
+{ CHECK_DEDENT(); printf("<MINUS>\n"); at_bol = 0; return T_MINUS; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 214 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_DIV; }
+#line 266 "sloth.l"
+{ CHECK_DEDENT(); printf("<MOD>\n"); at_bol = 0; return T_MOD; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 215 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_AND; }
+#line 267 "sloth.l"
+{ CHECK_DEDENT(); printf("<MUL>\n"); at_bol = 0; return T_MUL; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 216 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_OR; }
+#line 268 "sloth.l"
+{ CHECK_DEDENT(); printf("<DIV>\n"); at_bol = 0; return T_DIV; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 218 "sloth.l"
-{ CHECK_DEDENT(); at_bol = 0; return T_COMMA; }
+#line 269 "sloth.l"
+{ CHECK_DEDENT(); printf("<AND>\n"); at_bol = 0; return T_AND; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 220 "sloth.l"
-{ CHECK_DEDENT(); yylval.fval = atof(yytext); at_bol = 0; return T_FLOAT_NUM; }
+#line 270 "sloth.l"
+{ CHECK_DEDENT(); printf("<OR>\n"); at_bol = 0; return T_OR; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 221 "sloth.l"
-{ CHECK_DEDENT(); yylval.ival = atoi(yytext); at_bol = 0; return T_INT_NUM; }
+#line 272 "sloth.l"
+{ CHECK_DEDENT(); printf("<COMMA>\n"); at_bol = 0; return T_COMMA; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 222 "sloth.l"
-{ CHECK_DEDENT(); yylval.str = strdup(yytext); at_bol = 0; return T_STRING; }
+#line 274 "sloth.l"
+{ CHECK_DEDENT(); printf("<FLOAT %s>\n", yytext); at_bol = 0; return T_FLOAT_NUM; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 224 "sloth.l"
+#line 275 "sloth.l"
+{ CHECK_DEDENT(); printf("<INT %s>\n", yytext); at_bol = 0; return T_INT_NUM; }
+	YY_BREAK
+case 44:
+YY_RULE_SETUP
+#line 276 "sloth.l"
+{ CHECK_DEDENT(); printf("<STRING %s>\n", yytext); at_bol = 0; return T_STRING; }
+	YY_BREAK
+case 45:
+YY_RULE_SETUP
+#line 278 "sloth.l"
 {
     CHECK_DEDENT();
-    yylval.ival = get_symbol_position(yytext);
+    yylval = get_symbol_position(yytext);
+    printf("<ID %s idx=%d>\n", yytext, yylval);
     at_bol = 0;
     return T_ID;
 }
 	YY_BREAK
-case 44:
+case 46:
 YY_RULE_SETUP
-#line 231 "sloth.l"
+#line 286 "sloth.l"
 { at_bol = 0; }
 	YY_BREAK
-case 45:
+case 47:
 YY_RULE_SETUP
-#line 233 "sloth.l"
-{ fprintf(stderr, "Erro léxico na linha %d: caractere inesperado '%s'\n", yylineno, yytext); return T_UNKNOWN; }
+#line 288 "sloth.l"
+{ printf("Erro Lexico (linha %d): caractere inesperado '%s'\n", line_count, yytext); return T_UNKNOWN; }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(DEDENT_MODE):
-#line 235 "sloth.l"
+#line 290 "sloth.l"
 {
     while (indent_top > 0) {
         indent_top--;
-        return T_DEDENT;
+        printf("<DEDENT>\n");
     }
     return 0;
 }
 	YY_BREAK
-case 46:
+case 48:
 YY_RULE_SETUP
-#line 243 "sloth.l"
+#line 298 "sloth.l"
 ECHO;
 	YY_BREAK
-#line 1213 "lex.yy.c"
+#line 1243 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1505,7 +1535,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 68 )
+			if ( yy_current_state >= 70 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1533,11 +1563,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 68 )
+		if ( yy_current_state >= 70 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 67);
+	yy_is_jam = (yy_current_state == 69);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1575,10 +1605,6 @@ static int yy_get_next_buffer (void)
 		}
 
 	*--yy_cp = (char) c;
-
-    if ( c == '\n' ){
-        --yylineno;
-    }
 
 	(yytext_ptr) = yy_bp;
 	(yy_hold_char) = *yy_cp;
@@ -1658,10 +1684,6 @@ static int yy_get_next_buffer (void)
 	(yy_hold_char) = *++(yy_c_buf_p);
 
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = (c == '\n');
-	if ( YY_CURRENT_BUFFER_LVALUE->yy_at_bol )
-		
-    yylineno++;
-;
 
 	return c;
 }
@@ -2129,9 +2151,6 @@ static int yy_init_globals (void)
      * This function is called from yylex_destroy(), so don't allocate here.
      */
 
-    /* We do not touch yylineno unless the option is enabled. */
-    yylineno =  1;
-    
     (yy_buffer_stack) = NULL;
     (yy_buffer_stack_top) = 0;
     (yy_buffer_stack_max) = 0;
@@ -2226,6 +2245,31 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 243 "sloth.l"
+#line 298 "sloth.l"
 
+
+/* um pequeno main para testes independentes do parser */
+int main(int argc, char **argv) {
+    init_lexer();
+    if (argc > 1) {
+        FILE *f = fopen(argv[1], "r");
+        if (f) yyin = f;
+    }
+
+    printf("=== Iniciando análise léxica da linguagem Sloth (tabs-based indent) ===\n\n");
+    int tok;
+    while ((tok = yylex())) {
+        /* os prints são feitos nas regras; aqui apenas itera */
+    }
+
+    printf("\n--- Tabela de Símbolos ---\n");
+    printf("Posição | Identificador\n");
+    printf("-------------------------\n");
+    for (int i = 0; i < symbol_count; i++)
+        printf("%-7d | %s\n", i, symbol_table[i]);
+    printf("-------------------------\n");
+
+    for (int i = 0; i < symbol_count; i++) free(symbol_table[i]);
+    return 0;
+}
 

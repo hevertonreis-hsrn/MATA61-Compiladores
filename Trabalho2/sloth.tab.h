@@ -93,8 +93,7 @@ extern int yydebug;
     T_DEDENT = 294,                /* T_DEDENT  */
     T_T = 295,                     /* T_T  */
     T_F = 296,                     /* T_F  */
-    T_PT = 297,                    /* T_PT  */
-    T_UNKNOWN = 298                /* T_UNKNOWN  */
+    T_PT = 297                     /* T_PT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -103,13 +102,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 34 "sloth.y"
+#line 35 "sloth.y"
 
     int ival;
     double fval;
     char *str;
 
-#line 113 "sloth.tab.h"
+#line 112 "sloth.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
