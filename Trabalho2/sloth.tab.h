@@ -102,13 +102,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 35 "sloth.y"
+#line 87 "sloth.y"
 
     int ival;
     double fval;
     char *str;
+    struct ASTNode *node; /* Novo tipo para carregar nós da árvore */
 
-#line 112 "sloth.tab.h"
+#line 113 "sloth.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
